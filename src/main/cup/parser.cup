@@ -1,0 +1,52 @@
+package org.example;
+
+import java_cup.runtime.Symbol;
+import java.util.*;
+
+terminal LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, COLON, COMMA, STRING, NUMBER, TRUE, FALSE, NULL;
+
+non terminal Node jsonObject, jsonPairList, jsonPair, jsonArray, jsonValueList, jsonValue;
+
+jsonObject ::= LEFT_BRACE jsonPairList:list RIGHT_BRACE
+             {: RESULT = new Node("jsonObject", list); :}
+             | LEFT_BRACE RIGHT_BRACE
+             {: RESULT = new Node("jsonObject"); :}
+             ;
+
+jsonPairList ::= jsonPair:pair
+               {: RESULT = new Node("jsonPairList", pair); :}
+               | jsonPairList:list COMMA jsonPair:pair
+               {: RESULT = new Node("jsonPairList", list, pair); :}
+               ;
+
+jsonPair ::= STRING:llave COLON jsonValue:value
+            {: RESULT = new Node("jsonPair", new Node("key", String.valueOf(llave)), new Node("value", value)); :}
+            ;
+
+jsonArray ::= LEFT_BRACKET jsonValueList:list RIGHT_BRACKET
+            {: RESULT = new Node("jsonArray", list); :}
+            | LEFT_BRACKET RIGHT_BRACKET
+            {: RESULT = new Node("jsonArray"); :}
+            ;
+
+jsonValueList ::= jsonValue:value
+                {: RESULT = new Node("jsonValueList", value); :}
+                | jsonValueList:list COMMA jsonValue:value
+                {: RESULT = new Node("jsonValueList", list, value); :}
+                ;
+
+jsonValue ::= STRING:str
+            {: RESULT = new Node("STRING", String.valueOf(str)); :}
+            | NUMBER:num
+            {: RESULT = new Node("NUMBER", String.valueOf(num)); :}
+            | TRUE
+            {: RESULT = new Node("jsonValue", new Node("TRUE")); :}
+            | FALSE
+            {: RESULT = new Node("jsonValue", new Node("FALSE")); :}
+            | NULL
+            {: RESULT = new Node("jsonValue", new Node("NULL")); :}
+            | jsonObject:obj
+            {: RESULT = obj; :}
+            | jsonArray:arr
+            {: RESULT = arr; :}
+            ;
